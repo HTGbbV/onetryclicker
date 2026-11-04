@@ -1,0 +1,135 @@
+
+.shop-screen {
+  --background: #10151c;
+  color: #f0f2f5;
+}
+
+.shop-heading {
+  padding: 24px 20px 12px;
+
+  h1 {
+    font-size: 25px;
+    font-weight: 800;
+  }
+
+  p {
+    color: #9ca9b8;
+    font-size: 13px;
+  }
+}
+
+.eyebrow {
+  color: #e74c3c !important;
+  font-size: 10px !important;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.balance {
+  margin-top: 18px;
+  padding: 14px;
+  background: #1c2530;
+  border: 1px solid #344252;
+  border-radius: 10px;
+}
+
+.shop-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 12px;
+  background: #1c2530;
+  border: 1px solid #344252;
+  border-radius: 12px;
+}
+
+.item-icon {
+  font-size: 28px;
+}
+
+.item-info {
+  flex: 1;
+  min-width: 0;
+
+  h2 {
+    font-size: 15px;
+    font-weight: bold;
+    margin: 0 0 8px;
+  }
+
+  p {
+    color: #9ca9b8;
+    font-size: 12px;
+    margin: 0 0 10px;
+  }
+}
+
+.item-price {
+  color: #ffc857;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.shop-item ion-button {
+  font-size: 10px;
+  flex-shrink: 0;
+}
+.shop-item {
+  flex-wrap: wrap;
+}
+
+.shop-item .item-info {
+  width: 100%;
+}
+
+.shop-item ion-button {
+  margin-top: 8px;
+}
+
+.shop-item ion-button[color="warning"] {
+  --color: #10151c;
+}
+.purchase-section {
+  margin-top: 15px;
+  padding: 12px;
+  background: #172435;
+  border: 1px solid #34475e;
+  border-radius: 10px;
+
+  h3 {
+    color: #54c8ff;
+    font-size: 14px;
+    font-weight: bold;
+  }
+}
+
+.item-price {
+  color: #ffc857;
+  font-size: 13px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.upgrade-info {
+  margin-top: 15px;
+  padding: 12px;
+  background: #263343;
+  border-radius: 9px;
+  border: 1px solid #46576b;
+
+  h3 {
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffc857;
+  }
+}
+
+.locked-message {
+  color: #e9a23b !important;
+}
+
+.max-upgrade {
+  color: #35d49a !important;
+  font-weight: bold;
+  margin-top: 15px !important;
+}

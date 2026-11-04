@@ -1,0 +1,156 @@
+
+<ion-header>
+  <ion-toolbar color="dark">
+    <ion-title>ARSENAL NACIONAL</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="closeShop()">
+        Cerrar
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="shop-screen">
+
+  <div class="shop-heading">
+    <p class="eyebrow">DEPARTAMENTO DE DEFENSA</p>
+    <h1>Centro de mejoras</h1>
+    <p>Invierte tus clics para fortalecer tu arsenal.</p>
+
+    <div class="balance">
+      💰 Clics disponibles:
+      <strong>{{ contador }}</strong>
+    </div>
+
+    <div class="balance">
+      🏅 Nivel de campaña:
+      <strong>{{ nivelCampana }}</strong>
+    </div>
+  </div>
+
+  <ion-grid>
+    <ion-row>
+
+      @for (arma of armas; track arma.id) {
+        <ion-col size="12">
+
+          <div class="shop-item">
+            <div class="item-icon">🚀</div>
+
+            <div class="item-info">
+              <h2>{{ arma.nombre }}</h2>
+              <p>{{ arma.descripcion }}</p>
+
+              <!-- Arma bloqueada -->
+              @if (!arma.desbloqueada) {
+
+                <p>Arma todavía bloqueada.</p>
+
+                <div class="item-price">
+                  Precio de desbloqueo:
+                  {{ obtenerDatos(arma)?.unlockPrice }} clics
+                </div>
+
+                <p>
+                  Nivel necesario:
+                  {{ obtenerDatos(arma)?.unlockLevel }}
+                </p>
+
+                @if (nivelCampana < obtenerDatos(arma)?.unlockLevel) {
+                  <p class="locked-message">
+                    🔒 Todavía no has alcanzado este nivel.
+                  </p>
+                }
+
+                <ion-button
+                  color="danger"
+                  expand="block"
+                  [disabled]="
+                    nivelCampana < obtenerDatos(arma)?.unlockLevel ||
+                    contador < obtenerDatos(arma)?.unlockPrice
+                  "
+                  (click)="desbloquearArma(arma)">
+                  DESBLOQUEAR POR
+                  {{ obtenerDatos(arma)?.unlockPrice }} CLICS
+                </ion-button>
+
+              } @else {
+
+                <!-- Información del arma -->
+                <p>Munición actual: {{ arma.municion }}</p>
+                <p>Daño por disparo: {{ arma.dano }}</p>
+                <p>Nivel de mejora: {{ arma.nivelMejora }}</p>
+
+                <!-- Recarga -->
+                <div class="purchase-section">
+                  <h3>🔄 Recargar munición</h3>
+
+                  <p>
+                    Recibirás
+                    {{ obtenerDatos(arma)?.ammoPerPurchase }}
+                    unidades de munición.
+                  </p>
+
+                  <div class="item-price">
+                    Precio:
+                    {{ obtenerPrecioRecarga(arma) }} clics
+                  </div>
+
+                  <ion-button
+                    color="primary"
+                    expand="block"
+                    [disabled]="contador < obtenerPrecioRecarga(arma)"
+                    (click)="recargarArma(arma)">
+                    RECARGAR POR
+                    {{ obtenerPrecioRecarga(arma) }} CLICS
+                  </ion-button>
+                </div>
+
+                <!-- Mejora -->
+                @if (obtenerSiguienteMejora(arma); as mejora) {
+
+                  <div class="upgrade-info">
+                    <h3>⬆️ {{ mejora.name }}</h3>
+
+                    <p>
+                      Daño nuevo:
+                      {{ mejora.damage }}
+                    </p>
+
+                    <p>
+                      Pérdida de munición:
+                      {{ mejora.ammoLossPercent }}%
+                    </p>
+
+                    <div class="item-price">
+                      Precio de mejora:
+                      {{ mejora.price }} clics
+                    </div>
+
+                    <ion-button
+                      color="warning"
+                      expand="block"
+                      [disabled]="contador < mejora.price"
+                      (click)="mejorarArma(arma)">
+                      MEJORAR POR {{ mejora.price }} CLICS
+                    </ion-button>
+                  </div>
+
+                } @else {
+                  <p class="max-upgrade">
+                    ⭐ NIVEL MÁXIMO ALCANZADO
+                  </p>
+                }
+
+              }
+            </div>
+          </div>
+
+        </ion-col>
+      }
+
+    </ion-row>
+  </ion-grid>
+
+</ion-content>
