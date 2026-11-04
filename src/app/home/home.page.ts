@@ -49,6 +49,23 @@ export class HomePage implements OnDestroy {
 
   // Moneda del juego: todas las compras se pagan con clics.
   contador = 100;
+  // Mejoras de economía
+  clicsAutomaticos = 0;
+  multiplicadorClics = 1;
+  nivelMultiplicador = 0;
+
+  // Precio de la siguiente mejora del generador.
+  get precioAuto(): number {
+    return Math.ceil(50 * Math.pow(1.8, this.clicsAutomaticos));
+  }
+
+  // Precio de la siguiente mejora del multiplicador.
+  get precioMultiplicador(): number {
+    return 500 * Math.pow(2, this.nivelMultiplicador);
+  }
+
+  // Temporizador de clics automáticos
+  private timerClicsAutomaticos?: ReturnType<typeof setInterval>;
 
   armas: Arma[] = this.crearArmasIniciales();
   armaSeleccionadaId = 'misilBasico';
@@ -64,11 +81,11 @@ export class HomePage implements OnDestroy {
 
   paises = [
     { name: 'República de Norvak', salud: 10 },
-    { name: 'Federación de Drakonia', salud: 20 },
-    { name: 'Imperio de Varkesh', salud: 35 },
-    { name: 'Unión de Zorath', salud: 50 },
-    { name: 'República de Kaldoria', salud: 70 },
-    { name: 'Imperio de Obsidiana', salud: 100 }
+    { name: 'Federación de Drakonia', salud: 200 },
+    { name: 'Imperio de Varkesh', salud: 3500 },
+    { name: 'Unión de Zorath', salud: 5000 },
+    { name: 'República de Kaldoria', salud: 77000 },
+    { name: 'Imperio de Obsidiana', salud: 100000 }
   ];
 
   paisActual = 0;
@@ -113,7 +130,24 @@ export class HomePage implements OnDestroy {
   obtenerClic() {
     if (this.partidaTerminada || this.eventoDefensa) return;
 
-    this.contador += 1;
+    this.contador += this.multiplicadorClics;
+  }
+
+  private iniciarClicsAutomaticos() {
+    if (this.timerClicsAutomaticos) return;
+
+    this.timerClicsAutomaticos = setInterval(() => {
+      if (
+        this.partidaTerminada ||
+        this.eventoDefensa ||
+        this.clicsAutomaticos <= 0
+      ) return;
+
+      this.contador +=
+        this.clicsAutomaticos * this.multiplicadorClics;
+
+      this.cdr.detectChanges();
+    }, 2000);
   }
 
   seleccionarArma(id: string) {
@@ -254,7 +288,14 @@ export class HomePage implements OnDestroy {
         contador: this.contador,
         armas: this.armas,
         catalogo: this.catalogo,
-        nivelCampana: this.nivelCampana
+        nivelCampana: this.nivelCampana,
+
+        clicsAutomaticos: this.clicsAutomaticos,
+        precioAuto: this.precioAuto,
+
+        multiplicadorClics: this.multiplicadorClics,
+        nivelMultiplicador: this.nivelMultiplicador,
+        precioMultiplicador: this.precioMultiplicador
       }
     });
 
@@ -273,6 +314,40 @@ export class HomePage implements OnDestroy {
   // Todas las operaciones descuentan clics de contador.
   private procesarCompra(data: any) {
     if (this.partidaTerminada || this.eventoDefensa) return;
+  // Comprar generador automático.
+  if (data.action === 'autoClick') {
+    const precio = this.precioAuto;
+
+    if (this.contador < precio) return;
+
+    this.contador -= precio;
+    this.clicsAutomaticos++;
+
+    this.iniciarClicsAutomaticos();
+
+    this.mensaje =
+      `Generador comprado. Ahora produces ${this.clicsAutomaticos} clic(s) cada 2 segundos.`;
+
+    this.cdr.detectChanges();
+    return;
+  }
+
+  // Comprar multiplicador de clics.
+  if (data.action === 'doubleClicks') {
+    const precio = this.precioMultiplicador;
+
+    if (this.contador < precio) return;
+
+    this.contador -= precio;
+    this.nivelMultiplicador++;
+    this.multiplicadorClics *= 2;
+
+    this.mensaje =
+      `¡Multiplicador mejorado! Ahora consigues x${this.multiplicadorClics} clics.`;
+
+    this.cdr.detectChanges();
+    return;
+  }
 
     const arma = this.armas.find(
       item => item.id === data.weaponId
