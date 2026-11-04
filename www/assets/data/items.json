@@ -1,0 +1,55 @@
+{
+  "weapons": [
+    {
+      "id": "misilBasico",
+      "name": "Misil básico",
+      "description": "Arma estándar de tu arsenal.",
+      "unlockPrice": 0,
+      "unlockLevel": 1,
+      "initialAmmo": 20,
+      "ammoPerPurchase": 10,
+      "reloadBasePrice": 20,
+      "reloadPriceIncrease": 5,
+      "baseDamage": 1,
+      "upgrades": [
+        { "level": 1, "name": "Misil mejorado I", "price": 150, "damage": 2, "ammoLossPercent": 25 },
+        { "level": 2, "name": "Misil mejorado II", "price": 350, "damage": 3, "ammoLossPercent": 30 },
+        { "level": 3, "name": "Misil mejorado III", "price": 550, "damage": 4, "ammoLossPercent": 40 },
+        { "level": 4, "name": "Misil mejorado IV", "price": 750, "damage": 5, "ammoLossPercent": 50 },
+        { "level": 5, "name": "Misil definitivo", "price": 1000, "damage": 6, "ammoLossPercent": 65 }
+      ]
+    },
+    {
+      "id": "bombaRacimo",
+      "name": "Bomba de racimo",
+      "description": "Arma de gran potencia.",
+      "unlockPrice": 250,
+      "unlockLevel": 2,
+      "initialAmmo": 10,
+      "ammoPerPurchase": 5,
+      "reloadBasePrice": 40,
+      "reloadPriceIncrease": 10,
+      "baseDamage": 5,
+      "upgrades": [
+        { "level": 1, "name": "Bomba mejorada I", "price": 400, "damage": 8, "ammoLossPercent": 25 },
+        { "level": 2, "name": "Bomba mejorada II", "price": 700, "damage": 12, "ammoLossPercent": 30 }
+      ]
+    },
+    {
+      "id": "misilIntercontinental",
+      "name": "Misil intercontinental",
+      "description": "Arma de potencia extrema.",
+      "unlockPrice": 1000,
+      "unlockLevel": 4,
+      "initialAmmo": 5,
+      "ammoPerPurchase": 2,
+      "reloadBasePrice": 100,
+      "reloadPriceIncrease": 25,
+      "baseDamage": 10,
+      "upgrades": [
+        { "level": 1, "name": "Intercontinental mejorado I", "price": 1500, "damage": 15, "ammoLossPercent": 25 },
+        { "level": 2, "name": "Intercontinental mejorado II", "price": 2500, "damage": 20, "ammoLossPercent": 30 }
+      ]
+    }
+  ]
+}
