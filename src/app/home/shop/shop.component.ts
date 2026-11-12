@@ -36,6 +36,11 @@ export class ShopComponent {
   @Input() armas: any[] = [];
   @Input() catalogo: any[] = [];
   @Input() nivelCampana = 1;
+  @Input() clicsAutomaticos = 0;
+  @Input() precioAuto = 50;
+  @Input() multiplicadorClics = 1;
+  @Input() nivelMultiplicador = 0;
+  @Input() precioMultiplicador = 500;
 
   constructor(private modalCtrl: ModalController) {}
 
@@ -107,6 +112,22 @@ export class ShopComponent {
     this.modalCtrl.dismiss({
       action: 'upgrade',
       weaponId: arma.id
+    }, 'buy');
+  }
+
+  comprarGenerador() {
+    if (this.contador < this.precioAuto) return;
+
+    this.modalCtrl.dismiss({
+      action: 'autoClick'
+    }, 'buy');
+  }
+
+  comprarMultiplicador() {
+    if (this.contador < this.precioMultiplicador) return;
+
+    this.modalCtrl.dismiss({
+      action: 'doubleClicks'
     }, 'buy');
   }
 

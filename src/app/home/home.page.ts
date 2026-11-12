@@ -1,5 +1,5 @@
 
-import { Component, OnDestroy, ChangeDetectorRef  } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import {
   IonButton,
   IonCol,
@@ -47,26 +47,30 @@ export class HomePage implements OnDestroy {
 
   catalogo = tiendaData.weapons;
 
-  // Moneda del juego: todas las compras se pagan con clics.
   contador = 100;
+
   // Mejoras de economía
   clicsAutomaticos = 0;
   multiplicadorClics = 1;
   nivelMultiplicador = 0;
 
-  // Precio de la siguiente mejora del generador.
+  private timerClicsAutomaticos?: ReturnType<typeof setInterval>;
+
   get precioAuto(): number {
     return Math.ceil(50 * Math.pow(1.8, this.clicsAutomaticos));
   }
 
-  // Precio de la siguiente mejora del multiplicador.
   get precioMultiplicador(): number {
     return 500 * Math.pow(2, this.nivelMultiplicador);
   }
 
-  // Temporizador de clics automáticos
-  private timerClicsAutomaticos?: ReturnType<typeof setInterval>;
+  // Movimiento del botón antimisiles
+  antimisilX = 50;
+  antimisilY = 50;
 
+  private timerMovimientoAntimisil?: ReturnType<typeof setInterval>;
+
+  // Armas
   armas: Arma[] = this.crearArmasIniciales();
   armaSeleccionadaId = 'misilBasico';
 
@@ -76,16 +80,18 @@ export class HomePage implements OnDestroy {
     );
   }
 
+  // Salud nacional
   salud = 100;
   saludMaxima = 100;
 
+  // Países enemigos
   paises = [
-    { name: 'República de Norvak', salud: 10 },
-    { name: 'Federación de Drakonia', salud: 200 },
-    { name: 'Imperio de Varkesh', salud: 3500 },
-    { name: 'Unión de Zorath', salud: 5000 },
-    { name: 'República de Kaldoria', salud: 77000 },
-    { name: 'Imperio de Obsidiana', salud: 100000 }
+    { name: 'República de Norvak', salud: 20 },
+    { name: 'Federación de Drakonia', salud: 70 },
+    { name: 'Imperio de Varkesh', salud: 120 },
+    { name: 'Unión de Zorath', salud: 500 },
+    { name: 'República de Kaldoria', salud: 800 },
+    { name: 'Imperio de Obsidiana', salud: 1500 }
   ];
 
   paisActual = 0;
@@ -96,20 +102,30 @@ export class HomePage implements OnDestroy {
     return this.paisActual + 1;
   }
 
+  get enemigoActual() {
+    return this.paises[this.paisActual] ?? null;
+  }
+
+  // Quick Time Event
   eventoDefensa = false;
-  tiempoRestante = 20;
+  tiempoRestante = 10;
   interceptoresNecesarios = 15;
   interceptoresLanzados = 0;
 
   private timerDefensa?: ReturnType<typeof setInterval>;
+  private fechaFinDefensa = 0;
 
+  // Estado de partida
   partidaTerminada = false;
   victoriaFinal = false;
   mensaje = '';
 
-  constructor(private modalCtrl: ModalController,private cdr: ChangeDetectorRef) {}
+  constructor(
+    private modalCtrl: ModalController,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-  // Crear las armas a partir del catálogo JSON.
+  // CREACIÓN DE ARMAS
   private crearArmasIniciales(): Arma[] {
     return this.catalogo.map(arma => ({
       id: arma.id,
@@ -122,11 +138,7 @@ export class HomePage implements OnDestroy {
     }));
   }
 
-  get enemigoActual() {
-    return this.paises[this.paisActual] ?? null;
-  }
-
-  // Botón azul: cada pulsación genera un clic.
+  // ECONOMÍA
   obtenerClic() {
     if (this.partidaTerminada || this.eventoDefensa) return;
 
@@ -150,6 +162,7 @@ export class HomePage implements OnDestroy {
     }, 2000);
   }
 
+  // SELECCIÓN DE ARMAS
   seleccionarArma(id: string) {
     if (this.partidaTerminada || this.eventoDefensa) return;
 
@@ -161,7 +174,7 @@ export class HomePage implements OnDestroy {
     this.mensaje = `Has seleccionado: ${arma.nombre}.`;
   }
 
-  // Disparar consume munición, nunca clics.
+  // LANZAMIENTO DE MISILES
   lanzarMisil() {
     if (
       this.partidaTerminada ||
@@ -193,6 +206,7 @@ export class HomePage implements OnDestroy {
     }
   }
 
+  // CAMPAÑA
   private derrotarEnemigo() {
     const nombreDerrotado = this.enemigoActual?.name;
 
@@ -220,57 +234,119 @@ export class HomePage implements OnDestroy {
     this.saludEnemigo = enemigo.salud;
   }
 
+  // INICIO DEL QUICK TIME EVENT
   private iniciarDefensa() {
     this.detenerTemporizador();
+    this.detenerMovimientoAntimisil();
 
     this.eventoDefensa = true;
-    this.tiempoRestante = 20;
     this.interceptoresLanzados = 0;
+    this.tiempoRestante = 10;
 
     this.mensaje = '¡ALERTA! ¡Intercepta el contraataque!';
 
-    this.timerDefensa = setInterval(() => {
-      this.tiempoRestante--;
+    this.fechaFinDefensa = Date.now() + 20000;
 
-      if (this.tiempoRestante <= 0) {
-        this.fallarDefensa();
+    this.iniciarMovimientoAntimisil();
+
+    this.timerDefensa = setInterval(() => {
+      if (!this.eventoDefensa) return;
+
+      const restante = this.fechaFinDefensa - Date.now();
+
+      this.tiempoRestante = Math.max(
+        0,
+        Math.ceil(restante / 1000)
+      );
+
+      if (restante <= 0) {
+        this.finalizarDefensa(false);
+        return;
       }
-    }, 1000);
+
+      this.cdr.detectChanges();
+    }, 100);
   }
 
+  // MOVIMIENTO DEL BOTÓN ANTIAÉREO
+  private moverAntimisil(): void {
+    this.antimisilX = Math.floor(Math.random() * 77) + 12;
+    this.antimisilY = Math.floor(Math.random() * 51) + 25;
+  }
+
+  private iniciarMovimientoAntimisil(): void {
+    this.detenerMovimientoAntimisil();
+
+    const velocidad = Math.max(
+      220,
+      900 - (this.nivelCampana - 1) * 100
+    );
+
+    this.moverAntimisil();
+
+    this.timerMovimientoAntimisil = setInterval(() => {
+      if (!this.eventoDefensa) {
+        this.detenerMovimientoAntimisil();
+        return;
+      }
+
+      this.moverAntimisil();
+      this.cdr.detectChanges();
+
+    }, velocidad);
+  }
+
+  private detenerMovimientoAntimisil(): void {
+    if (this.timerMovimientoAntimisil) {
+      clearInterval(this.timerMovimientoAntimisil);
+      this.timerMovimientoAntimisil = undefined;
+    }
+  }
+
+  // BOTÓN ANTIAÉREO
   lanzarAntimisil() {
     if (!this.eventoDefensa || this.partidaTerminada) return;
 
     this.interceptoresLanzados++;
 
     if (this.interceptoresLanzados >= this.interceptoresNecesarios) {
-      this.completarDefensa();
+      this.finalizarDefensa(true);
+      return;
     }
+
+    this.moverAntimisil();
+
+    this.cdr.detectChanges();
   }
 
-  private completarDefensa() {
-    this.detenerTemporizador();
+  // FINALIZACIÓN DEL QTE
+  private finalizarDefensa(exito: boolean) {
+    if (!this.eventoDefensa) return;
 
     this.eventoDefensa = false;
-    this.mensaje = '¡Contraataque interceptado con éxito!';
-  }
 
-  private fallarDefensa() {
     this.detenerTemporizador();
+    this.detenerMovimientoAntimisil();
 
-    this.eventoDefensa = false;
-    this.salud = Math.max(0, this.salud - 25);
+    if (exito) {
+      this.mensaje = '¡Contraataque interceptado con éxito!';
+    } else {
+      this.salud = Math.max(0, this.salud - 25);
 
-    this.mensaje =
-      '¡El enemigo ha impactado! Has perdido 25 puntos de salud.';
+      this.mensaje =
+        '¡El enemigo ha impactado! Has perdido 25 puntos de salud.';
 
-    if (this.salud <= 0) {
-      this.partidaTerminada = true;
-      this.victoriaFinal = false;
-      this.mensaje = 'Tu país se ha quedado sin salud nacional.';
+      if (this.salud <= 0) {
+        this.partidaTerminada = true;
+        this.victoriaFinal = false;
+        this.mensaje = 'Tu país se ha quedado sin salud nacional.';
+      }
     }
+
+    this.cdr.detectChanges();
   }
 
+  // TEMPORIZADOR DE DEFENSA
   private detenerTemporizador() {
     if (this.timerDefensa) {
       clearInterval(this.timerDefensa);
@@ -278,7 +354,7 @@ export class HomePage implements OnDestroy {
     }
   }
 
-  // Abrir tienda con el saldo actual de clics.
+  // TIENDA
   async openShop() {
     if (this.partidaTerminada || this.eventoDefensa) return;
 
@@ -289,10 +365,8 @@ export class HomePage implements OnDestroy {
         armas: this.armas,
         catalogo: this.catalogo,
         nivelCampana: this.nivelCampana,
-
         clicsAutomaticos: this.clicsAutomaticos,
         precioAuto: this.precioAuto,
-
         multiplicadorClics: this.multiplicadorClics,
         nivelMultiplicador: this.nivelMultiplicador,
         precioMultiplicador: this.precioMultiplicador
@@ -305,49 +379,46 @@ export class HomePage implements OnDestroy {
 
     if (role === 'buy' && data) {
       this.procesarCompra(data);
-
-      // Fuerza la actualización visual al cerrar la tienda.
       this.cdr.detectChanges();
     }
   }
 
-  // Todas las operaciones descuentan clics de contador.
+  // COMPRAS
   private procesarCompra(data: any) {
     if (this.partidaTerminada || this.eventoDefensa) return;
-  // Comprar generador automático.
-  if (data.action === 'autoClick') {
-    const precio = this.precioAuto;
 
-    if (this.contador < precio) return;
+    if (data.action === 'autoClick') {
+      const precio = this.precioAuto;
 
-    this.contador -= precio;
-    this.clicsAutomaticos++;
+      if (this.contador < precio) return;
 
-    this.iniciarClicsAutomaticos();
+      this.contador -= precio;
+      this.clicsAutomaticos++;
 
-    this.mensaje =
-      `Generador comprado. Ahora produces ${this.clicsAutomaticos} clic(s) cada 2 segundos.`;
+      this.iniciarClicsAutomaticos();
 
-    this.cdr.detectChanges();
-    return;
-  }
+      this.mensaje =
+        `Generador comprado. Ahora produces ${this.clicsAutomaticos} clic(s) cada 2 segundos.`;
 
-  // Comprar multiplicador de clics.
-  if (data.action === 'doubleClicks') {
-    const precio = this.precioMultiplicador;
+      this.cdr.detectChanges();
+      return;
+    }
 
-    if (this.contador < precio) return;
+    if (data.action === 'doubleClicks') {
+      const precio = this.precioMultiplicador;
 
-    this.contador -= precio;
-    this.nivelMultiplicador++;
-    this.multiplicadorClics *= 2;
+      if (this.contador < precio) return;
 
-    this.mensaje =
-      `¡Multiplicador mejorado! Ahora consigues x${this.multiplicadorClics} clics.`;
+      this.contador -= precio;
+      this.nivelMultiplicador++;
+      this.multiplicadorClics *= 2;
 
-    this.cdr.detectChanges();
-    return;
-  }
+      this.mensaje =
+        `¡Multiplicador mejorado! Ahora consigues x${this.multiplicadorClics} clics.`;
+
+      this.cdr.detectChanges();
+      return;
+    }
 
     const arma = this.armas.find(
       item => item.id === data.weaponId
@@ -411,15 +482,27 @@ export class HomePage implements OnDestroy {
       this.mensaje =
         `${arma.nombre} mejorado por ${mejora.price} clics. Munición perdida: ${perdida}.`;
     }
-    // Crear nuevas referencias para que Angular detecte los cambios.
+
     this.armas = this.armas.map(arma => ({ ...arma }));
     this.cdr.detectChanges();
   }
 
+  // REINICIO
   reiniciarPartida() {
     this.detenerTemporizador();
+    this.detenerMovimientoAntimisil();
 
     this.contador = 100;
+
+    if (this.timerClicsAutomaticos) {
+      clearInterval(this.timerClicsAutomaticos);
+      this.timerClicsAutomaticos = undefined;
+    }
+
+    this.clicsAutomaticos = 0;
+    this.multiplicadorClics = 1;
+    this.nivelMultiplicador = 0;
+
     this.salud = this.saludMaxima;
 
     this.armas = this.crearArmasIniciales();
@@ -429,15 +512,27 @@ export class HomePage implements OnDestroy {
     this.inicializarEnemigo();
 
     this.eventoDefensa = false;
-    this.tiempoRestante = 20;
+    this.tiempoRestante = 10;
     this.interceptoresLanzados = 0;
+
+    this.antimisilX = 50;
+    this.antimisilY = 50;
 
     this.partidaTerminada = false;
     this.victoriaFinal = false;
     this.mensaje = '';
+
+    this.cdr.detectChanges();
   }
 
+  // DESTRUCCIÓN DEL COMPONENTE
   ngOnDestroy() {
     this.detenerTemporizador();
+    this.detenerMovimientoAntimisil();
+
+    if (this.timerClicsAutomaticos) {
+      clearInterval(this.timerClicsAutomaticos);
+      this.timerClicsAutomaticos = undefined;
+    }
   }
 }

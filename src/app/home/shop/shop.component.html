@@ -29,6 +29,65 @@
     </div>
   </div>
 
+  <!-- MEJORAS DE ECONOMÍA -->
+  <div class="purchase-section">
+    <h3>⚙️ MEJORAS ECONÓMICAS</h3>
+
+    <!-- Generador automático -->
+    <div class="upgrade-info">
+      <h3>⏱️ Generador automático</h3>
+
+      <p>
+        Generación actual:
+        {{ clicsAutomaticos }} clic(s) cada 2 segundos.
+      </p>
+
+      <p>
+        Al comprarlo producirás
+        {{ clicsAutomaticos + 1 }} clic(s) cada 2 segundos.
+      </p>
+
+      <div class="item-price">
+        Precio: {{ precioAuto }} clics
+      </div>
+
+      <ion-button
+        color="primary"
+        expand="block"
+        [disabled]="contador < precioAuto"
+        (click)="comprarGenerador()">
+        COMPRAR GENERADOR
+      </ion-button>
+    </div>
+
+    <!-- Multiplicador -->
+    <div class="upgrade-info">
+      <h3>⚡ Multiplicador de clics</h3>
+
+      <p>
+        Multiplicador actual: x{{ multiplicadorClics }}
+      </p>
+
+      <p>
+        Al comprarlo conseguirás
+        x{{ multiplicadorClics * 2 }} clics.
+      </p>
+
+      <div class="item-price">
+        Precio: {{ precioMultiplicador }} clics
+      </div>
+
+      <ion-button
+        color="warning"
+        expand="block"
+        [disabled]="contador < precioMultiplicador"
+        (click)="comprarMultiplicador()">
+        MEJORAR MULTIPLICADOR
+      </ion-button>
+    </div>
+  </div>
+
+
   <ion-grid>
     <ion-row>
 

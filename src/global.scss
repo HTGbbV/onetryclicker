@@ -35,3 +35,19 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+/* DESACTIVAR SELECCIÓN DE TEXTO EN TODO EL JUEGO */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  -webkit-touch-callout: none;
+}
+/* EVITAR GESTOS ACCIDENTALES EN LA INTERFAZ */
+button,
+ion-button,
+.moving-antimissile {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}

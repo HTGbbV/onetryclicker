@@ -1,199 +1,210 @@
 
-<ion-header>
-  <ion-toolbar color="dark">
-    <ion-title>COMMAND CENTER</ion-title>
-  </ion-toolbar>
-</ion-header>
 
-<ion-content [fullscreen]="true" class="home-screen">
+<ion-content class="home-screen" [scrollY]="false">
+  <div class="dashboard">
 
-  <div class="status-panel">
-    <p class="eyebrow">PRESIDENTIAL DEFENSE SYSTEM</p>
-    <h1>MISSILE CLICKER</h1>
-    <p class="subtitle">Centro de mando nacional</p>
-  </div>
+    <!-- CABECERA -->
+    <section class="status-panel">
+      <div>
+        <p class="eyebrow">PRESIDENTIAL DEFENSE SYSTEM</p>
+        <h1>MISSILE CLICKER</h1>
+        <p class="subtitle">Centro de mando nacional</p>
+      </div>
+      <div class="system-indicator">
+        <span class="indicator-dot"></span>
+        SISTEMA OPERATIVO
+      </div>
+    </section>
 
-  <!-- Estadísticas -->
-  <ion-grid>
-    <ion-row>
-      <ion-col size="6">
-        <div class="stat-card">
-          <p>💰 ECONOMÍA</p>
-          <h2>{{ contador }}</h2>
-          <small>Clics disponibles</small>
+    <!-- INDICADORES -->
+    <section class="stats-grid">
+      <div class="stat-card economy-card">
+        <div class="stat-heading">
+          <span>ECONOMÍA NACIONAL</span>
+          <span>◈</span>
         </div>
-      </ion-col>
+        <div class="stat-value">{{ contador }}</div>
+        <small>CLICS DISPONIBLES</small>
+      </div>
 
-      <ion-col size="6">
-        <div class="stat-card">
-          <p>SALUD NACIONAL</p>
-          <h2>❤️ {{ salud }}%</h2>
-          <ion-progress-bar
-            color="danger"
-            [value]="salud / saludMaxima">
-          </ion-progress-bar>
+      <div class="stat-card health-card">
+        <div class="stat-heading">
+          <span>SALUD NACIONAL</span>
+          <span>♥</span>
         </div>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-
-  <!-- Enemigo actual -->
-  @if (enemigoActual && !partidaTerminada) {
-    <div class="enemy-panel">
-      <p class="eyebrow">OBJETIVO ACTUAL</p>
-      <h2>{{ enemigoActual.name }}</h2>
-
-      <div class="enemy-health">
-        <div class="health-label">
-          <span>Resistencia enemiga</span>
-          <span>{{ saludEnemigo }} / {{ saludEnemigoMaxima }}</span>
-        </div>
-
+        <div class="stat-value">{{ salud }}<small>%</small></div>
         <ion-progress-bar
-          color="warning"
-          [value]="saludEnemigo / saludEnemigoMaxima">
+          color="danger"
+          [value]="salud / saludMaxima">
         </ion-progress-bar>
+        <small>ESTABILIDAD DEL GOBIERNO</small>
       </div>
-    </div>
-  }
+    </section>
 
-  <!-- Sistema de armamento -->
-  <div class="launch-section">
-    <p class="eyebrow">SISTEMA DE ARMAMENTO</p>
+    <!-- CONSOLA PRINCIPAL -->
+    <main class="main-console">
 
-    <!-- Selector de armas -->
-    <div class="weapon-selector">
-      <p class="eyebrow">ARMA SELECCIONADA</p>
+      <!-- OBJETIVO -->
+      @if (enemigoActual && !partidaTerminada) {
+        <section class="enemy-panel">
+          <div class="panel-heading">
+            <span class="panel-marker"></span>
+            OBJETIVO MILITAR
+            <span class="target-status">ENEMIGO</span>
+          </div>
 
-      @for (arma of armas; track arma.id) {
-        @if (arma.desbloqueada) {
-          <button
-            class="weapon-option"
-            [class.weapon-selected]="armaSeleccionadaId === arma.id"
-            [disabled]="partidaTerminada || eventoDefensa"
-            (click)="seleccionarArma(arma.id)">
+          <div class="enemy-name">{{ enemigoActual.name }}</div>
 
-            <strong>{{ arma.nombre }}</strong>
-            <span>{{ arma.municion }} unidades</span>
-            <small>Daño: {{ arma.dano }}</small>
-          </button>
-        }
+          <div class="enemy-health">
+            <div class="health-label">
+              <span>RESISTENCIA</span>
+              <strong>{{ saludEnemigo }} / {{ saludEnemigoMaxima }}</strong>
+            </div>
+            <ion-progress-bar
+              color="warning"
+              [value]="saludEnemigo / saludEnemigoMaxima">
+            </ion-progress-bar>
+          </div>
+
+          <div class="enemy-footer">
+            <span>SECTOR HOSTIL</span>
+            <span>AMENAZA NIVEL {{ nivelCampana }}</span>
+          </div>
+        </section>
       }
-    </div>
 
-    <!-- Saldo y botones -->
-    <div class="click-balance">
-      💰 CLICS DISPONIBLES: {{ contador }}
-    </div>
+      <!-- ARMAMENTO Y CONTROLES -->
+      <section class="launch-section">
+        <div class="panel-heading">
+          <span class="panel-marker blue-marker"></span>
+          SISTEMA DE ARMAMENTO
+        </div>
 
-<div class="launch-controls">
+        <div class="weapon-selector">
+          @for (arma of armas; track arma.id) {
+            @if (arma.desbloqueada) {
+              <button
+                type="button"
+                class="weapon-option"
+                [class.weapon-selected]="armaSeleccionadaId === arma.id"
+                [disabled]="partidaTerminada || eventoDefensa"
+                (click)="seleccionarArma(arma.id)">
 
-  <!-- Botón antimisiles -->
-  <button
-    type="button"
-    class="antimissile-button"
-    [disabled]="!eventoDefensa || partidaTerminada"
-    (click)="lanzarAntimisil()">
-    🛡️
-    <span>ANTIMISILES</span>
-  </button>
+                <strong>{{ arma.nombre }}</strong>
+                <span>{{ arma.municion }} MUNICIONES</span>
+                <small>DAÑO: {{ arma.dano }}</small>
+              </button>
+            }
+          }
+        </div>
 
-  <!-- BOTÓN AZUL: CONSEGUIR CLICS -->
-  <button
-    type="button"
-    class="click-button"
-    [disabled]="partidaTerminada || eventoDefensa"
-    (click)="obtenerClic()">
-    <span class="launch-icon">💰</span>
-    <span class="launch-label">CONSEGUIR</span>
-    <span class="launch-label">CLICS</span>
-    <span class="launch-hint">+1 CLIC</span>
-  </button>
+        <div class="selected-weapon">
+          <span>ARMA ACTIVA</span>
+          <strong>{{ armaSeleccionada?.nombre ?? 'NINGUNA' }}</strong>
+          <span>{{ armaSeleccionada?.municion ?? 0 }} DISPONIBLES</span>
+        </div>
 
-  <!-- Botón rojo: atacar -->
-  <button
-    type="button"
-    class="launch-button"
-    [disabled]="partidaTerminada || eventoDefensa || !armaSeleccionada || armaSeleccionada.municion <= 0"
-    (click)="lanzarMisil()">
-    <span class="launch-icon">🚀</span>
-    <span class="launch-label">DISPARAR</span>
-    <span class="launch-hint">
-      {{ armaSeleccionada?.municion ?? 0 }} MUNICIONES
-    </span>
-  </button>
+        <div class="launch-controls">
 
-</div>
+          <!-- CONSEGUIR CLICS -->
+          <button
+            type="button"
+            class="control-button click-button"
+            [disabled]="partidaTerminada || eventoDefensa"
+            (click)="obtenerClic()">
+            <span class="control-icon">◈</span>
+            <strong>ECONOMÍA</strong>
+            <small>+{{ multiplicadorClics }} CLICS</small>
+          </button>
 
-    <p class="launch-description">
-      El botón azul genera clics para comprar. El botón rojo consume
-      munición para atacar.
-    </p>
-  </div>
+          <!-- ATACAR -->
+          <button
+            type="button"
+            class="control-button launch-button"
+            [disabled]="partidaTerminada || eventoDefensa || !armaSeleccionada || armaSeleccionada.municion <= 0"
+            (click)="lanzarMisil()">
+            <span class="control-icon">🚀</span>
+            <strong>ATACAR</strong>
+            <small>{{ armaSeleccionada?.municion ?? 0 }} MUNICIONES</small>
+          </button>
+        </div>
+      </section>
+    </main>
 
-  <!-- Aviso de contraataque -->
-  @if (eventoDefensa) {
-    <div class="defense-notice">
-      <div class="defense-notice-header">
-        <span class="warning-icon">⚠️</span>
-        <strong>¡CONTRAATAQUE ENEMIGO!</strong>
-      </div>
+    <!-- ALERTA DE CONTRAATAQUE -->
+@if (eventoDefensa) {
+  <div class="defense-overlay">
+    <section class="defense-window">
 
-      <p>
-        Pulsa el botón violeta {{ interceptoresNecesarios }} veces
-        antes de que termine el tiempo.
+      <div class="skull-icon">☠️</div>
+
+      <p class="defense-eyebrow">⚠ ALERTA DE SEGURIDAD NACIONAL</p>
+      <h2>¡MISILES ENEMIGOS!</h2>
+      <p class="defense-description">
+        Localiza y pulsa el botón antimisiles antes de que termine el tiempo.
       </p>
 
-      <div class="defense-progress">
-        <span>
-          Interceptores: {{ interceptoresLanzados }} /
-          {{ interceptoresNecesarios }}
-        </span>
-        <span class="countdown">{{ tiempoRestante }} s</span>
+      <div class="defense-countdown">
+        {{ tiempoRestante }}<small> SEGUNDOS</small>
+      </div>
+
+      <div class="defense-arena">
+        <span class="arena-label">ZONA DE INTERCEPCIÓN</span>
+
+        <button
+          type="button"
+          class="moving-antimissile"
+          [style.left.%]="antimisilX"
+          [style.top.%]="antimisilY"
+          (click)="lanzarAntimisil()">
+          🛡️
+          <span>INTERCEPTAR</span>
+        </button>
+      </div>
+
+      <div class="defense-counter">
+        INTERCEPTORES:
+        <strong>{{ interceptoresLanzados }} / {{ interceptoresNecesarios }}</strong>
       </div>
 
       <ion-progress-bar
         color="danger"
-        [value]="tiempoRestante / 20">
+        [value]="interceptoresLanzados / interceptoresNecesarios">
       </ion-progress-bar>
-    </div>
-  }
 
-  <!-- Tienda -->
-  <div class="actions">
-    <ion-button
-      expand="block"
-      color="medium"
-      (click)="openShop()"
-      [disabled]="partidaTerminada || eventoDefensa">
-      🛒 ABRIR ARSENAL
-    </ion-button>
+    </section>
   </div>
+}
 
-  <!-- Mensajes -->
-  @if (mensaje) {
-    <div class="message-panel">
-      {{ mensaje }}
-    </div>
-  }
-
-  <!-- Final de la partida -->
-  @if (partidaTerminada) {
-    <div class="end-panel">
-      <h2>
-        {{ victoriaFinal
-          ? '🏆 CAMPAÑA COMPLETADA'
-          : '☠️ GOBIERNO DERROTADO' }}
-      </h2>
-
-      <p>{{ mensaje }}</p>
+    <!-- BARRA INFERIOR -->
+    <footer class="bottom-bar">
+      <div class="system-message">
+        <span class="message-dot"></span>
+        <span>{{ mensaje || 'SISTEMA LISTO. ESPERANDO ÓRDENES.' }}</span>
+      </div>
 
       <ion-button
+        class="arsenal-button"
         expand="block"
-        (click)="reiniciarPartida()">
-        NUEVA PARTIDA
+        color="medium"
+        (click)="openShop()"
+        [disabled]="partidaTerminada || eventoDefensa">
+        ◈ ABRIR ARSENAL
       </ion-button>
-    </div>
-  }
+    </footer>
 
+    <!-- FINAL DE PARTIDA -->
+    @if (partidaTerminada) {
+      <section class="end-panel">
+        <h2>
+          {{ victoriaFinal ? '🏆 CAMPAÑA COMPLETADA' : '☠️ GOBIERNO DERROTADO' }}
+        </h2>
+        <p>{{ mensaje }}</p>
+        <ion-button expand="block" (click)="reiniciarPartida()">
+          NUEVA PARTIDA
+        </ion-button>
+      </section>
+    }
+
+  </div>
 </ion-content>
